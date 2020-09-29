@@ -39,31 +39,37 @@ while connection:
 
     # The message is first encode as a byte object.
     message = message.encode()
-    #byte_literal_message = message
+    
+    # Create new HMAC from the message using MD5
     h = hmac.new(hmac_key_byte, message, hashlib.md5,)
     digest = h.hexdigest().encode("utf-8")
-
+    # Concatenate the original message and the HMAC hexidigest
     concatenate_message = message + digest
-    # Fucntion that encrypts message using the shared DES key.
+    # Fucntion that encrypts the concatenated message using the shared DES key.
     encrypted_message = des.encrypt(concatenate_message)
 
     client_socket.send(encrypted_message)
 
     # Python doesn't allow the encrypted message to be decoded.
-    #print("***********************\n")
     print("--- Sender Side ---\n")
     print("Shared DES key is: " + des_key)
     print(f"Shared HMAC key is: {hmac_key}")
     print("Plain message is: " + str_message)
     print(f"Sender side HMAC is: {digest}")
-    #print(f"HMAC concatenation with message: {concatenate_message}")
     print(f"Sent ciphertext is: {encrypted_message}")
-    #print("***********************\n")
     print("\n")
     # Get the receiving encrypted message from server.
     recv_message = client_socket.recv(2048)
     # Decrypt the message from client with the shared DES key.
     decrypted_message = des.decrypt(recv_message).decode("utf-8")
+
+    '''
+    The loops are for basically for splitting up the concatenated message
+    that is received.
+    The HMAC digest using MD5 is always 32 characters, so the loop will store characters
+    up to when index is 32 in reverse.
+    Then the remaining characters are for the message.
+    ''' 
     count = 0
     reverse_hmac = ''
     reverse_message = ''
@@ -83,14 +89,18 @@ while connection:
                 forward_message += k
 
     forward_encode_message = forward_message.encode("utf-8")
+
+    # Calculate the message to compare to the receiving HMAC Digest
     h_calc = hmac.new(hmac_key_byte, forward_encode_message, hashlib.md5,)
     digest_calc = h_calc.hexdigest().encode("utf-8")
     hmac_string = hmac_string.encode("utf-8")
-    #print("***********************")
+    # Compare the calculated HMAC digest and the received HMAC digest
+    compare_hmac = hmac.compare_digest(hmac_string, digest_calc)
+
     print("--- Receiver Side ---") 
     print(f"Received ciphertext is: {recv_message}")
     print("Received message is: " + forward_message)
     print(f"Received HMAC is: {hmac_string}")
     print(f"Calculated HMAC is: {digest_calc}")
-    #print("***********************\n")
+    print(f"Comparison of calculated HMAC and Received HMAC: {compare_hmac}")
     print("\n")
