@@ -20,7 +20,7 @@
 * 6) On the server terminal, the message is decrypted and the concatenated message is split back into message and digest.
      The server will then calculate the HMAC with the receieved message, and then compare the calculated digest with the received digest.
      A prompt will come up to enter a message.
-     Type a message such as "Hello CLient." The message is thenput through the HMAC and its digest is returned.
+     Type a message such as "Hello Client." The message is thenput through the HMAC and its digest is returned.
      The digest is then concatenated with the message and then encrypted using DES and sent to client.
 * 7) Back on client terminal, the message from server is decrypted and the concatenated message is split back into message and digest.
      The server will then calculate the HMAC with the receieved message, and then compare the calculated digest with the received digest.
